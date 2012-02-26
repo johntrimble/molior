@@ -1,6 +1,5 @@
 package com.github.johntrimble.molior.maven.plugins
 
-
 import java.io.File
 import java.util.List
 import java.util.Map
@@ -13,6 +12,7 @@ import org.apache.maven.artifact.factory.ArtifactFactory
 import org.apache.maven.artifact.metadata.ArtifactMetadataSource
 import org.apache.maven.artifact.repository.ArtifactRepository
 import org.apache.maven.artifact.resolver.ArtifactResolver
+import org.apache.maven.artifact.versioning.VersionRange
 import org.apache.maven.project.MavenProject
 import org.codehaus.gmaven.common.ArtifactItem
 import org.codehaus.gmaven.mojo.GroovyMojo

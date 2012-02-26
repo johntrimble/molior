@@ -1,6 +1,5 @@
 package com.github.johntrimble.molior.maven.plugins
 
-
 import java.io.File;
 import java.util.Map;
 
@@ -9,10 +8,11 @@ import org.apache.maven.plugin.MojoExecutionException
 import org.apache.maven.plugin.MojoFailureException
 import org.codehaus.gmaven.common.ArtifactItem
 
-import com.amazonaws.services.cloudformation.model.CreateStackRequest;
-import com.amazonaws.services.cloudformation.model.DescribeStacksRequest;
-import com.amazonaws.services.cloudformation.model.Parameter;
-import com.amazonaws.services.cloudformation.model.StackStatus;
+import com.amazonaws.services.cloudformation.model.Stack
+import com.amazonaws.services.cloudformation.model.CreateStackRequest
+import com.amazonaws.services.cloudformation.model.DescribeStacksRequest
+import com.amazonaws.services.cloudformation.model.Parameter
+import com.amazonaws.services.cloudformation.model.StackStatus
 
 /**
 *
@@ -103,6 +103,7 @@ class CreateStackMojo extends AbstractMojo {
     if( template && !template.exists() ) {
       fail("Template file '${template.path}' does not exist.")
     }
+    return template
   }
 
 }
