@@ -15,13 +15,17 @@
  */
 package com.github.johntrimble.molior.maven.plugins
 
-import java.io.File;
-import java.util.Map;
+import java.io.File
+import java.util.Map
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.MojoExecutionException
 import org.apache.maven.plugin.MojoFailureException
 import org.codehaus.gmaven.common.ArtifactItem
+import org.joda.time.Hours
+import org.joda.time.Interval
+import org.joda.time.PeriodType
+import org.joda.time.format.PeriodFormat
 
 import com.amazonaws.services.cloudformation.model.Stack
 import com.amazonaws.services.cloudformation.model.CreateStackRequest
@@ -85,13 +89,22 @@ class CreateStackMojo extends AbstractMojo {
       stackName = "${stackNamePrefix}${new Date().format('yyyyMMddHHmmss')}"
     
     template = findTemplate()
-    
+
+    log.info "Using template: ${template.absolutePath}"
+    this.parameters.each { key, value -> log.info "\t${key} = ${value}" }
+
+    // Create stack parameters    
     List cfParameters = []
     this.parameters.collect cfParameters, { key, value -> new Parameter(parameterKey:key, parameterValue: value) }
 
+    // Create stack
     String stackId = cloudFormation.createStack(new CreateStackRequest(stackName:stackName, templateBody:template.text, timeoutInMinutes: cloudFormationTimeout, parameters: cfParameters)).stackId
+    log.info "Creating stack: ${stackId}"
     
     // Poll stack until created
+    Date startTime = new Date()
+    log.info "Waiting for stack to start..."
+
     Stack stack = null
     for( ;; ) {
       stack = cloudFormation.describeStacks(new DescribeStacksRequest(stackName: stackId)).stacks.find { it }
@@ -102,6 +115,16 @@ class CreateStackMojo extends AbstractMojo {
       }
       Thread.currentThread().sleep 60*1000
     }
+    
+    Date endTime = new Date()
+    
+    String elapsed = (PeriodFormat.wordBased().print( 
+      new Interval(startTime.time, endTime.time)
+      .toPeriod(PeriodType.time().withSecondsRemoved().withMillisRemoved())))
+    
+    
+    log.info "Stack '${stackId}' created in ${elapsed}."
+    stack.outputs.each { log.info "\t${it.outputKey} = ${it.outputValue}" }
   }
   
   def findTemplate() {
