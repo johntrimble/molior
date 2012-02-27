@@ -62,20 +62,51 @@ import com.amazonaws.services.ec2.model.DisassociateAddressRequest
 class DeleteStackMojo extends AbstractMojo {
 
   /**
+   * @parameter default-value="false"
+   */
+  boolean skipMostRecent
+  
+  /**
    * @parameter
    * @required
    */
   String selector
  
   void execute() {
+    // Replace any variables in the filter expression that may have been created by previous molior goals. 
+    selector = replaceVariables(selector, project.properties)
+    
+    log.info "Deleting stack matching filter: ${selector}"
     Filter f = new Filter(selector)
-    cloudFormation.describeStacks().stacks.grep { 
+    preProcessStacks(cloudFormation.describeStacks().stacks.grep { 
       f(mapifyStack(it)) 
-    }.grep {
+    }).grep {
       !interactive || prompter.prompt("Delete stack '${it.stackName}' created ${getAgeString(it)} ago?", ["Y", "n"], "n") == "Y"
     }.each {
       cloudFormation.deleteStack new DeleteStackRequest(stackName: it.stackId)
     }
+  }
+  
+  def preProcessStacks(List stacks) {
+    stacks = stacks.sort { a, b -> a.creationTime <=> b.creationTime }
+    if( skipMostRecent && stacks.size() )
+      stacks.pop()
+    return stacks
+  }
+  
+  private String replaceVariables(String text, Map variableValueMap) {
+    def matcher = (text =~ /[$][{]([^}]+)[}]/)
+    def mrl = []
+    while( matcher.find() ) {
+      mrl << matcher.toMatchResult()
+    }
+    def result = text
+    mrl.reverse()
+      .each { 
+        if( !(it.group(1) in variableValueMap) ) 
+          throw new IllegalStateException("Could not find variable replacement for '${it.group(1)}'.") }
+      .each { result = result[0..it.start()-1] + variableValueMap[it.group(1)] + result[it.end()..result.size()-1] } 
+    return result
   }
   
   private String getAgeString(Stack s) {

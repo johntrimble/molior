@@ -125,6 +125,9 @@ class CreateStackMojo extends AbstractMojo {
     
     log.info "Stack '${stackId}' created in ${elapsed}."
     stack.outputs.each { log.info "\t${it.outputKey} = ${it.outputValue}" }
+    
+    // Add Maven properties for new stack
+    mapifyStack(stack).each { k, v -> project.getProperties().put "${stackPropertyName}.${k}".trim(), "${v}".trim() }
   }
   
   def findTemplate() {
