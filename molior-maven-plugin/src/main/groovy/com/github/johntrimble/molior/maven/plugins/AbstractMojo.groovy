@@ -115,7 +115,7 @@ abstract class AbstractMojo extends GroovyMojo {
   }
 
   /**
-   * @parameter default-value="true"
+   * @parameter default-value="true" expression="${interactive}"
    */
   boolean interactive
   
