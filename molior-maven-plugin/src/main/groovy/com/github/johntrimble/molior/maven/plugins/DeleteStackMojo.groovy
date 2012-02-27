@@ -73,9 +73,6 @@ class DeleteStackMojo extends AbstractMojo {
   String selector
  
   void execute() {
-    // Replace any variables in the filter expression that may have been created by previous molior goals. 
-    selector = replaceVariables(selector, project.properties)
-    
     log.info "Deleting stacks matching filter: ${selector}"
     Filter f = new Filter(selector)
     preProcessStacks(cloudFormation.describeStacks().stacks.grep { 
@@ -93,21 +90,6 @@ class DeleteStackMojo extends AbstractMojo {
     if( skipMostRecent && stacks.size() )
       stacks.pop()
     return stacks
-  }
-  
-  private String replaceVariables(String text, Map variableValueMap) {
-    def matcher = (text =~ /[$][{]([^}]+)[}]/)
-    def mrl = []
-    while( matcher.find() ) {
-      mrl << matcher.toMatchResult()
-    }
-    def result = text
-    mrl.reverse()
-      .each { 
-        if( !(it.group(1) in variableValueMap) ) 
-          throw new IllegalStateException("Could not find variable replacement for '${it.group(1)}'.") }
-      .each { result = result[0..it.start()-1] + variableValueMap[it.group(1)] + result[it.end()..result.size()-1] } 
-    return result
   }
   
   private String getAgeString(Stack s) {
