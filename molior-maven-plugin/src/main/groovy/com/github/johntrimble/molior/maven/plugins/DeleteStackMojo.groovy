@@ -76,13 +76,14 @@ class DeleteStackMojo extends AbstractMojo {
     // Replace any variables in the filter expression that may have been created by previous molior goals. 
     selector = replaceVariables(selector, project.properties)
     
-    log.info "Deleting stack matching filter: ${selector}"
+    log.info "Deleting stacks matching filter: ${selector}"
     Filter f = new Filter(selector)
     preProcessStacks(cloudFormation.describeStacks().stacks.grep { 
       f(mapifyStack(it)) 
     }).grep {
       !interactive || prompter.prompt("Delete stack '${it.stackName}' created ${getAgeString(it)} ago?", ["Y", "n"], "n") == "Y"
     }.each {
+      log.info "Deleting stack: ${it.stackName}"
       cloudFormation.deleteStack new DeleteStackRequest(stackName: it.stackId)
     }
   }
