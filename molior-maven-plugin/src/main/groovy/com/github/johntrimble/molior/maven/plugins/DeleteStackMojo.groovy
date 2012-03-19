@@ -32,6 +32,9 @@ import org.codehaus.gmaven.common.ArtifactItem
 import org.codehaus.gmaven.mojo.GroovyMojo
 import org.codehaus.plexus.util.FileUtils
 
+import org.jfrog.maven.annomojo.annotations.MojoAggregator
+import org.jfrog.maven.annomojo.annotations.MojoParameter
+import org.jfrog.maven.annomojo.annotations.MojoGoal
 import org.joda.time.Interval;
 import org.joda.time.PeriodType;
 import org.joda.time.format.PeriodFormat
@@ -55,22 +58,16 @@ import com.amazonaws.services.ec2.model.DisassociateAddressRequest
 /**
 *
 * @author John Trimble <john.trimble@meltmedia.com>
-*
-* @aggregator
-* @goal deleteStack
 */
+@MojoAggregator
+@MojoGoal('deleteStack')
 class DeleteStackMojo extends AbstractMojo {
 
-  /**
-   * @parameter default-value="false"
-   */
-  boolean skipMostRecent
+  @MojoParameter(defaultValue='false')
+  public boolean skipMostRecent
   
-  /**
-   * @parameter
-   * @required
-   */
-  String selector
+  @MojoParameter(required=true)
+  public String selector
  
   void execute() {
     log.info "Deleting stacks matching filter: ${selector}"

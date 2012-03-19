@@ -33,6 +33,9 @@ import org.codehaus.gmaven.common.ArtifactItem
 import org.codehaus.gmaven.mojo.GroovyMojo
 import org.codehaus.plexus.components.interactivity.Prompter
 
+import org.jfrog.maven.annomojo.annotations.MojoParameter
+import org.jfrog.maven.annomojo.annotations.MojoComponent
+
 import com.amazonaws.auth.AWSCredentials
 import com.amazonaws.auth.PropertiesCredentials
 import com.amazonaws.http.AmazonHttpClient
@@ -48,92 +51,47 @@ abstract class AbstractMojo extends GroovyMojo {
     LogManager.getLogManager().reset()
   }
   
-  /**
-   * @parameter expression="${project}"
-   * @required
-   * @readonly
-   *
-   * @noinspection UnusedDeclaration
-   */
-  protected MavenProject project;
+  @MojoParameter(expression='${project}')
+  public MavenProject project;
 
-  /**
-   * @component
-   * @readonly
-   * @required
-   *
-   * @noinspection UnusedDeclaration
-   */
-  ArtifactFactory artifactFactory
+  @MojoComponent
+  public ArtifactFactory artifactFactory
 
-  /**
-   * @component
-   * @readonly
-   * @required
-   *
-   * @noinspection UnusedDeclaration
-   */
-  ArtifactResolver artifactResolver
+  @MojoComponent
+  public ArtifactResolver artifactResolver
 
-  /**
-   * @component
-   * @readonly
-   * @required
-   *
-   * @noinspection UnusedDeclaration
-   */
-  ArtifactMetadataSource artifactMetadataSource
+  @MojoComponent
+  public ArtifactMetadataSource artifactMetadataSource
 
-  /**
-   * @parameter expression="${localRepository}"
-   * @readonly
-   * @required
-   *
-   * @noinspection UnusedDeclaration
-   */
-  ArtifactRepository artifactRepository
+  @MojoParameter(defaultValue='${localRepository}')
+  public ArtifactRepository artifactRepository
 
-  /**
-   * @parameter expression="${project.pluginArtifactRepositories}"
-   * @required
-   * @readonly
-   *
-   * @noinspection UnusedDeclaration
-   */
+  @MojoParameter(expression='${project.pluginArtifactRepositories')
   List remoteRepositories
 
-  /**
-   * Component used to prompt for input.
-   * @component
-   * @readonly
-   * @required
-   */
-  protected Prompter prompter
+  @MojoComponent
+  public Prompter prompter
 
   void setPrompter( Prompter prompter ) {
     this.prompter = prompter;
   }
 
-  /**
-   * @parameter default-value="true" expression="${interactive}"
-   */
-  boolean interactive
+  @MojoParameter(defaultValue='true', expression='${interactive}')
+  public boolean interactive
   
   /**
    * File containing AWS credentials in the following format:
    * accessKey=YOUR_ACCESS_KEY
    * secretKey=YOUR_SECRET_KEY
-   *
-   * @parameter expression="${user.home}/.aws_credentials"
    */
-  File credentialsFile
+  @MojoParameter(expression='${user.home}/.aws_credentials')
+  public File credentialsFile
 
   /**
    * The AWS region to use.
-   *
-   * @parameter default-value="us-west-1"
    */
-  String region
+  @MojoParameter(defaultValue='us-west-1')
+  public String region
 
   // Mapping of regions to AWS endpoints.
   private Map regionEndpoints = [

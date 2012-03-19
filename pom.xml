@@ -15,22 +15,23 @@
     limitations under the License.
 
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <artifactId>oss-parent</artifactId>
     <groupId>org.sonatype.oss</groupId>
     <version>7</version>
   </parent>
-  
+
   <groupId>com.github.johntrimble.molior</groupId>
   <artifactId>com.github.johntrimble.molior</artifactId>
   <version>0.0.1-SNAPSHOT</version>
-  
+
   <packaging>pom</packaging>
-  
+
   <name>Molior</name>
-  
+
   <licenses>
     <license>
       <name>The Apache Software License, Version 2.0</name>
@@ -38,7 +39,7 @@
       <distribution>repo</distribution>
     </license>
   </licenses>
-  
+
   <developers>
     <developer>
       <id>john.trimble</id>
@@ -46,17 +47,22 @@
       <email>trimblej@gmail.com</email>
     </developer>
   </developers>
-  
+
   <modules>
     <module>molior-maven-plugin</module>
   </modules>
-  
+
+  <properties>
+    <groovy.version>1.8.6</groovy.version>
+    <gmaven.version>1.4</gmaven.version>
+  </properties>
+
   <dependencyManagement>
     <dependencies>
       <dependency>
         <groupId>org.codehaus.groovy</groupId>
         <artifactId>groovy-all</artifactId>
-        <version>1.6.9</version>
+        <version>${groovy.version}</version>
       </dependency>
       <dependency>
         <groupId>com.amazonaws</groupId>
@@ -66,7 +72,7 @@
       <dependency>
         <groupId>org.codehaus.gmaven</groupId>
         <artifactId>gmaven-mojo</artifactId>
-        <version>1.3</version>
+        <version>${gmaven.version}</version>
         <exclusions>
           <exclusion>
             <groupId>org.codehaus.gmaven.runtime</groupId>
@@ -76,8 +82,14 @@
       </dependency>
       <dependency>
         <groupId>org.codehaus.gmaven.runtime</groupId>
-        <artifactId>gmaven-runtime-1.6</artifactId>
-        <version>1.3</version>
+        <artifactId>gmaven-runtime-1.8</artifactId>
+        <version>${gmaven.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>org.codehaus.groovy</groupId>
+            <artifactId>groovy-all</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.codehaus.plexus</groupId>
@@ -94,9 +106,14 @@
         <artifactId>joda-time</artifactId>
         <version>2.1</version>
       </dependency>
+      <dependency>
+        <groupId>org.jfrog.maven.annomojo</groupId>
+        <artifactId>maven-plugin-anno</artifactId>
+        <version>1.4.1</version>
+      </dependency>
     </dependencies>
   </dependencyManagement>
-  
+
   <build>
     <pluginManagement>
       <plugins>
@@ -109,52 +126,39 @@
             <target>1.6</target>
           </configuration>
         </plugin>
-        <!-- Yes, this is the outdated gmaven plugin... this works around 
-          an issue with the dependencies of the plugin being different here from the 
-          project in general -->
         <plugin>
-          <groupId>org.codehaus.groovy.maven</groupId>
+          <groupId>org.codehaus.gmaven</groupId>
           <artifactId>gmaven-plugin</artifactId>
-          <version>1.0</version>
+          <version>${gmaven.version}</version>
+          <configuration>
+            <providerSelection>1.8</providerSelection>
+          </configuration>
           <executions>
             <execution>
-              <id>groovy-build</id>
               <goals>
-                <goal>generateStubs</goal>
                 <goal>compile</goal>
-              </goals>
-              <configuration>
-                <configuration>
-                  <providerSelection>1.6</providerSelection>
-                </configuration>
-              </configuration>
-            </execution>
-            <execution>
-              <id>groovy-build-test</id>
-              <goals>
                 <goal>generateStubs</goal>
+                <goal>generateTestStubs</goal>
                 <goal>testCompile</goal>
               </goals>
-              <configuration>
-                <sources>
-                  <fileset>
-                    <directory>${pom.basedir}/src/test/java</directory>
-                    <includes>
-                      <include>**/*.groovy</include>
-                    </includes>
-                  </fileset>
-                </sources>
-                <configuration>
-                  <providerSelection>1.6</providerSelection>
-                </configuration>
-              </configuration>
             </execution>
           </executions>
           <dependencies>
             <dependency>
+              <groupId>org.codehaus.gmaven.runtime</groupId>
+              <artifactId>gmaven-runtime-1.8</artifactId>
+              <version>${gmaven.version}</version>
+              <exclusions>
+                <exclusion>
+                  <groupId>org.codehaus.groovy</groupId>
+                  <artifactId>groovy-all</artifactId>
+                </exclusion>
+              </exclusions>
+            </dependency>
+            <dependency>
               <groupId>org.codehaus.groovy</groupId>
               <artifactId>groovy-all</artifactId>
-              <version>1.6.9</version>
+              <version>${groovy.version}</version>
             </dependency>
           </dependencies>
         </plugin>
@@ -164,10 +168,19 @@
           <configuration>
             <goalPrefix>molior</goalPrefix>
           </configuration>
+          <dependencies>
+            <dependency>
+              <groupId>org.jfrog.maven.annomojo</groupId>
+              <artifactId>maven-plugin-tools-anno</artifactId>
+              <scope>runtime</scope>
+              <version>1.4.1</version>
+            </dependency>
+          </dependencies>
         </plugin>
         <plugin>
           <groupId>com.mycila.maven-license-plugin</groupId>
           <artifactId>maven-license-plugin</artifactId>
+          <version>1.9.0</version>
           <configuration>
             <header>src/etc/license.txt</header>
             <strictCheck>true</strictCheck>

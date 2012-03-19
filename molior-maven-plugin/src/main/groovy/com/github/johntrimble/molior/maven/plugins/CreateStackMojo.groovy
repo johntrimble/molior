@@ -18,10 +18,13 @@ package com.github.johntrimble.molior.maven.plugins
 import java.io.File
 import java.util.Map
 
-import org.apache.maven.artifact.Artifact;
+import org.apache.maven.artifact.Artifact
 import org.apache.maven.plugin.MojoExecutionException
 import org.apache.maven.plugin.MojoFailureException
 import org.codehaus.gmaven.common.ArtifactItem
+import org.jfrog.maven.annomojo.annotations.MojoAggregator
+import org.jfrog.maven.annomojo.annotations.MojoGoal
+import org.jfrog.maven.annomojo.annotations.MojoParameter
 import org.joda.time.Hours
 import org.joda.time.Interval
 import org.joda.time.PeriodType
@@ -37,59 +40,50 @@ import com.amazonaws.services.cloudformation.model.StackStatus
 *
 * @author John Trimble <john.trimble@meltmedia.com>
 *
-* @aggregator
-* @goal createStack
 */
+@MojoGoal('createStack')
+@MojoAggregator
 class CreateStackMojo extends AbstractMojo {
 
-  /**
-   * @parameter default-value="stack"
-   */
-  String stackPropertyName
+  @MojoParameter(defaultValue='stack')
+  public String stackPropertyName
   
-  /**
-   * @parameter
-   */
-  String stackName
+  @MojoParameter
+  public String stackName
  
-  /**
-   * @parameter
-   */
-  String stackNamePrefix
+  @MojoParameter
+  public String stackNamePrefix
   
   /**
    * Additional input parameters for the CloudFormation template.
-   *
-   * @parameter
    */
-  Map parameters
+  @MojoParameter
+  public Map parameters
   
   /**
    * The CloudFormation template file.
-   *
-   * @parameter expression="${project.build.outputDirectory}/provision.template"
    */
-  File template
+  @MojoParameter(expression='${project.build.outputDirectory}/provision.template')
+  public File template
     
   /**
    * The Maven artifact for the CloudFormation template.
-   * @parameter
    */
-  ArtifactItem templateArtifact
+  @MojoParameter
+  public ArtifactItem templateArtifact
   
   /**
    * Timeout in minutes.
-   * 
-   * @parameter default-value="30"
    */
-  int cloudFormationTimeout
+  @MojoParameter(defaultValue='30')
+  public int cloudFormationTimeout
   
   void execute() throws MojoExecutionException, MojoFailureException {
     if( !stackName ) 
       stackName = "${stackNamePrefix}${new Date().format('yyyyMMddHHmmss')}"
     
     template = findTemplate()
-
+    
     log.info "Using template: ${template.absolutePath}"
     this.parameters.each { key, value -> log.info "\t${key} = ${value}" }
 
