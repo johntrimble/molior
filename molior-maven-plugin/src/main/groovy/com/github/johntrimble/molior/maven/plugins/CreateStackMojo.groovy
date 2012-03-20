@@ -43,7 +43,7 @@ import groovy.json.JsonSlurper
 * @author John Trimble <john.trimble@meltmedia.com>
 *
 */
-@MojoGoal('createStack')
+@MojoGoal('create-stack')
 @MojoAggregator
 class CreateStackMojo extends AbstractMojo {
 

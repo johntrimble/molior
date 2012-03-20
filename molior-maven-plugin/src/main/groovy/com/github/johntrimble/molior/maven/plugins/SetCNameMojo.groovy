@@ -21,7 +21,11 @@ import com.amazonaws.services.route53.model.ResourceRecord
 import com.amazonaws.services.route53.model.ResourceRecordSet
 import com.amazonaws.services.route53.model.ListResourceRecordSetsRequest
 
-@MojoGoal('setCName')
+/**
+ * 
+ * @author John Trimble
+ */
+@MojoGoal('set-cname')
 @MojoAggregator
 class SetCNameMojo extends AbstractMojo {
   @MojoParameter(required=true)

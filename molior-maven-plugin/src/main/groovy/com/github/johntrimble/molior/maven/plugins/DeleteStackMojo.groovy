@@ -60,7 +60,7 @@ import com.amazonaws.services.ec2.model.DisassociateAddressRequest
 * @author John Trimble <john.trimble@meltmedia.com>
 */
 @MojoAggregator
-@MojoGoal('deleteStack')
+@MojoGoal('delete-stack')
 class DeleteStackMojo extends AbstractMojo {
 
   @MojoParameter(defaultValue='false')
