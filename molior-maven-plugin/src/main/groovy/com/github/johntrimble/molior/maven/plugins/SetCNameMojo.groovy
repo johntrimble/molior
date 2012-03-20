@@ -63,14 +63,26 @@ class SetCNameMojo extends AbstractMojo {
         maxItems: '1000')).resourceRecordSets.findAll({
           it.type == 'CNAME' && it.name == name
         })
-    
+
+    recordsToRemove.each {
+      log.info "Found existing record set for '${name}': $it"
+    }
+
+    if( interactive && recordsToRemove ) {
+      if( prompter.prompt("Remove existing CNAME records for '${name}'?", ['Y', 'n'], 'n') != 'Y' ) {
+        return
+      }
+    }
+
     // Collect records we need to create
-    List<ResourceRecordSet> recordsToAdd = [new ResourceRecordSet(name: name, type: 'CNAME', tTL: 20, resourceRecords:[new ResourceRecord(value)])]
-    
+    List<ResourceRecordSet> recordsToAdd = [
+      new ResourceRecordSet(name: name, type: 'CNAME', tTL: 20, resourceRecords: [new ResourceRecord(value)])
+    ]
+
     // Apply changes
     List<Change> changes = recordsToRemove.collect({ new Change('DELETE', it) }) + recordsToAdd.collect({ new Change('CREATE', it) })
     ChangeResourceRecordSetsResult result = route53.changeResourceRecordSets(new ChangeResourceRecordSetsRequest(hostedZoneId, new ChangeBatch(changes)))
-    
+
     // Poll changes until they've been propagated or we time out
     ChangeInfo changeInfo = result.changeInfo
     long startTime = System.currentTimeMillis()
@@ -78,7 +90,7 @@ class SetCNameMojo extends AbstractMojo {
       Thread.currentThread().sleep(20*1000)
       changeInfo = route53.getChange(new GetChangeRequest(changeInfo.id)).changeInfo
     }
-    
+
     // Log what happened
     if( 'INSYNC' != changeInfo.status ) {
       log.info("Timed out when setting the domain name...")
