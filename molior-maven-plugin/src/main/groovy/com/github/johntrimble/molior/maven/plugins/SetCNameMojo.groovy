@@ -95,7 +95,7 @@ class SetCNameMojo extends AbstractMojo {
     if( 'INSYNC' != changeInfo.status ) {
       log.info("Timed out when setting the domain name...")
     } else {
-      log.info("Successfully set CNAME for ${name} to ${value}")
+      log.info("Successfully set CNAME for alias ${name} to ${value}")
     }
   }
 }
