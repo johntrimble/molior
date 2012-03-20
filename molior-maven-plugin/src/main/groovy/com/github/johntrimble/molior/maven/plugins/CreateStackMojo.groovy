@@ -36,6 +36,8 @@ import com.amazonaws.services.cloudformation.model.DescribeStacksRequest
 import com.amazonaws.services.cloudformation.model.Parameter
 import com.amazonaws.services.cloudformation.model.StackStatus
 
+import groovy.json.JsonSlurper
+
 /**
 *
 * @author John Trimble <john.trimble@meltmedia.com>
