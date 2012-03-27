@@ -37,6 +37,7 @@ import org.jfrog.maven.annomojo.annotations.MojoParameter
 import org.jfrog.maven.annomojo.annotations.MojoComponent
 
 import com.amazonaws.auth.AWSCredentials
+import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.auth.PropertiesCredentials
 import com.amazonaws.http.AmazonHttpClient
 import com.amazonaws.services.cloudformation.AmazonCloudFormation;
@@ -78,6 +79,12 @@ abstract class AbstractMojo extends GroovyMojo {
 
   @MojoParameter(defaultValue='true', expression='${interactive}')
   public boolean interactive
+  
+  @MojoParameter(expression='${aws.accessKey}')
+  public String accessKey
+  
+  @MojoParameter(expression='${aws.secretKey}')
+  public String secretKey
   
   /**
    * File containing AWS credentials in the following format:
@@ -129,9 +136,19 @@ abstract class AbstractMojo extends GroovyMojo {
   }
 
   public AWSCredentials getCredentials() {
-    if( !credentialsFile.exists() )
-      fail("Could not find credentials file ${credentialsFile.path}")
-    new PropertiesCredentials(credentialsFile)
+    AWSCredentials credentials = null
+    
+    if( this.accessKey && this.secretKey ) {
+      credentials = new BasicAWSCredentials(this.accessKey, this.secretKey)
+    } else if( !credentialsFile ) {
+      fail("Must specify either credentialsFile or both accessKey and secretKey.")
+    } else if( !credentialsFile.exists() ) {
+      fail("Specified credentials file ${credentialsFile.absolutePath} does not exist.")
+    } else { 
+      credentials = new PropertiesCredentials(credentialsFile)
+    }
+    
+    return credentials
   }
 
   /**

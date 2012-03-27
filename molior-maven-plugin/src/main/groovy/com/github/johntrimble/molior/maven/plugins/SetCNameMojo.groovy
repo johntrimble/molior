@@ -86,6 +86,12 @@ class SetCNameMojo extends AbstractMojo {
     recordsToRemove.each {
       log.info "Found existing record set for '${name}': $it"
     }
+    
+    if( interactive ) {
+      if( prompter.prompt("Set CNAME alias '${name}' for '${value}'?", ['Y', 'n'], 'n') != 'Y' ) {
+        return
+      }
+    }
 
     if( interactive && recordsToRemove ) {
       if( prompter.prompt("Remove existing CNAME records for '${name}'?", ['Y', 'n'], 'n') != 'Y' ) {

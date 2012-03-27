@@ -84,8 +84,9 @@ class DeleteStackMojo extends AbstractMojo {
   
   def preProcessStacks(List stacks) {
     stacks = stacks.sort { a, b -> a.creationTime <=> b.creationTime }
-    if( skipMostRecent && stacks.size() )
+    if( skipMostRecent && stacks.size() ) {
       stacks.pop()
+    }
     return stacks
   }
   
