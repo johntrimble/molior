@@ -47,6 +47,12 @@
       <email>trimblej@gmail.com</email>
     </developer>
   </developers>
+  
+  <scm>
+    <connection>scm:git://github.com/johntrimble/molior.git</connection>
+    <developerConnection>scm:git://github.com/johntrimble/molior.git</developerConnection>
+    <url>https://github.com/johntrimble/molior</url>
+  </scm>
 
   <modules>
     <module>molior-maven-plugin</module>
@@ -113,6 +119,40 @@
       </dependency>
     </dependencies>
   </dependencyManagement>
+
+  <profiles>
+    <profile>
+      <id>meltmedia</id>
+      <distributionManagement>
+        <repository>
+          <id>meltmedia-releases</id>
+          <name>Meltmedia Release Repository [m2]</name>
+          <url>http://nexus.meltdev.com/content/repositories/releases</url>
+        </repository>
+        <snapshotRepository>
+          <id>meltmedia-snapshots</id>
+          <name>Meltmedia Snapshot Repository [m2]</name>
+          <url>http://nexus.meltdev.com/content/repositories/snapshots</url>
+        </snapshotRepository>
+      </distributionManagement>
+
+      <build>
+        <pluginManagement>
+          <plugins>
+            <plugin>
+              <groupId>org.apache.maven.plugins</groupId>
+              <artifactId>maven-release-plugin</artifactId>
+              <configuration>
+                <mavenExecutorId>forked-path</mavenExecutorId>
+                <useReleaseProfile>false</useReleaseProfile>
+                <arguments>-Pmeltmedia</arguments>
+              </configuration>
+            </plugin>
+          </plugins>
+        </pluginManagement>
+      </build>
+    </profile>
+  </profiles>
 
   <build>
     <pluginManagement>
