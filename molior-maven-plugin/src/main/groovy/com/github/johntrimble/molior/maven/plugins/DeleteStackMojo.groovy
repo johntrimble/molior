@@ -72,7 +72,7 @@ class DeleteStackMojo extends AbstractMojo {
   void execute() {
     log.info "Deleting stacks matching filter: ${selector}"
     Filter f = new Filter(selector)
-    preProcessStacks(cloudFormation.describeStacks().stacks.grep { 
+    preProcessStacks(getAllStacks(cloudFormation).grep { 
       f(mapifyStack(it)) 
     }).grep {
       !interactive || prompter.prompt("Delete stack '${it.stackName}' created ${getAgeString(it)} ago?", ["Y", "n"], "n") == "Y"
@@ -88,6 +88,12 @@ class DeleteStackMojo extends AbstractMojo {
       stacks.pop()
     }
     return stacks
+  }
+  
+  List<Stack> getAllStacks(AmazonCloudFormation cf) {
+    // If the list of requested stacks exceeds some threshold, Amazon will not return the outputs or parameters for 
+    // each stack. Since outputs and parameters can be used in filtering, we need to grab each stack individually.
+    cf.describeStacks().stacks.collect { cf.describeStacks(new DescribeStacksRequest(stackName: it.stackId)).stacks }.flatten()
   }
   
   private String getAgeString(Stack s) {
