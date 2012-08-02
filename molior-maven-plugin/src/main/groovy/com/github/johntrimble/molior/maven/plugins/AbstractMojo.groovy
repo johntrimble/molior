@@ -41,6 +41,8 @@ import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.auth.PropertiesCredentials
 import com.amazonaws.http.AmazonHttpClient
 import com.amazonaws.services.cloudformation.AmazonCloudFormation;
+import com.amazonaws.services.cloudformation.AmazonCloudFormationAsync
+import com.amazonaws.services.cloudformation.AmazonCloudFormationAsyncClient;
 import com.amazonaws.services.cloudformation.AmazonCloudFormationClient
 import com.amazonaws.services.ec2.AmazonEC2
 import com.amazonaws.services.ec2.AmazonEC2Client
@@ -117,11 +119,11 @@ abstract class AbstractMojo extends GroovyMojo {
    * @return
    */
   AmazonCloudFormation createCloudFormation(AWSCredentials credentials, String endpoint) {
-    AmazonCloudFormationClient cf = new AmazonCloudFormationClient(credentials)
+    AmazonCloudFormationAsyncClient cf = new AmazonCloudFormationAsyncClient(credentials)
     cf.endpoint = endpoint
     return cf
   }
-
+  
   /**
    * Creates an EC2 client using the given credentials and endpoint.
    *
@@ -169,19 +171,19 @@ abstract class AbstractMojo extends GroovyMojo {
   /**
    * CloudFormation instance to use.
    */
-  private AmazonCloudFormation _cloudFormation
+  private AmazonCloudFormationAsync _cloudFormation
 
-  public AmazonCloudFormation getCloudFormation() {
+  public AmazonCloudFormationAsync getCloudFormation() {
     if( !_cloudFormation ) {
       _cloudFormation = createCloudFormation(credentials, regionEndpoints[region]['cloudformation'])
     }
     return _cloudFormation
   }
-
-  public void setCloudFormation(AmazonCloudFormation cf) {
+  
+  public void setCloudFormation(AmazonCloudFormationAsync cf) {
     _cloudFormation = cf
   }
-
+  
   Artifact getArtifact(ArtifactItem item) {
     if( !item )
       fail('Cannot get an Artifact instance for a null ArtifactItem.')
