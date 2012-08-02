@@ -60,6 +60,7 @@
   <properties>
     <groovy.version>1.8.6</groovy.version>
     <gmaven.version>1.4</gmaven.version>
+    <annomojo.version>1.4.1</annomojo.version>
   </properties>
 
   <dependencyManagement>
@@ -112,9 +113,9 @@
         <version>2.1</version>
       </dependency>
       <dependency>
-        <groupId>org.jfrog.maven.annomojo</groupId>
-        <artifactId>maven-plugin-anno</artifactId>
-        <version>1.4.1</version>
+        <groupId>br.com.ingenieux.maven.annomojo</groupId>
+        <artifactId>org.jfrog.maven.maven-plugin-tools-anno</artifactId>
+        <version>${annomojo.version}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
@@ -214,10 +215,10 @@
           </configuration>
           <dependencies>
             <dependency>
-              <groupId>org.jfrog.maven.annomojo</groupId>
-              <artifactId>maven-plugin-tools-anno</artifactId>
+              <groupId>br.com.ingenieux.maven.annomojo</groupId>
+              <artifactId>org.jfrog.maven.maven-plugin-tools-anno</artifactId>
+              <version>${annomojo.version}</version>
               <scope>runtime</scope>
-              <version>1.4.1</version>
             </dependency>
           </dependencies>
         </plugin>
