@@ -15,6 +15,8 @@
  */
 package com.github.johntrimble.molior.maven.plugins
 
+import java.util.concurrent.Future
+
 import org.apache.maven.artifact.Artifact
 import org.apache.maven.artifact.factory.ArtifactFactory
 import org.apache.maven.artifact.metadata.ArtifactMetadataSource
@@ -47,9 +49,13 @@ import com.amazonaws.services.cloudformation.model.CreateStackRequest
 import com.amazonaws.services.cloudformation.model.CreateStackResult
 import com.amazonaws.services.cloudformation.model.DeleteStackRequest
 import com.amazonaws.services.cloudformation.model.DescribeStacksRequest
+import com.amazonaws.services.cloudformation.model.DescribeStacksResult
+import com.amazonaws.services.cloudformation.model.ListStacksRequest
+import com.amazonaws.services.cloudformation.model.ListStacksResult;
 import com.amazonaws.services.cloudformation.model.Parameter
 import com.amazonaws.services.cloudformation.model.Stack
 import com.amazonaws.services.cloudformation.model.StackStatus
+import com.amazonaws.services.cloudformation.model.StackSummary;
 import com.amazonaws.services.ec2.AmazonEC2
 import com.amazonaws.services.ec2.AmazonEC2Client
 import com.amazonaws.services.ec2.model.AssociateAddressRequest
@@ -72,7 +78,7 @@ class DeleteStackMojo extends AbstractMojo {
   void execute() {
     log.info "Deleting stacks matching filter: ${selector}"
     Filter f = new Filter(selector)
-    preProcessStacks(getAllStacks(cloudFormation).grep { 
+    preProcessStacks(getAllStacks().grep { 
       f(mapifyStack(it)) 
     }).grep {
       !interactive || prompter.prompt("Delete stack '${it.stackName}' created ${getAgeString(it)} ago?", ["Y", "n"], "n") == "Y"
@@ -90,10 +96,45 @@ class DeleteStackMojo extends AbstractMojo {
     return stacks
   }
   
-  List<Stack> getAllStacks(AmazonCloudFormation cf) {
+  List<Stack> getAllStacks() {
     // If the list of requested stacks exceeds some threshold, Amazon will not return the outputs or parameters for 
     // each stack. Since outputs and parameters can be used in filtering, we need to grab each stack individually.
-    cf.describeStacks().stacks.collect { cf.describeStacks(new DescribeStacksRequest(stackName: it.stackId)).stacks }.flatten()
+    
+    // Issue #4: when there are more than 20 stacks on an account, describeStacks() will no longer work reliably without a
+    // stackName parameter. Consequently, we need to use ListStacks instead.
+    def stackSummaries = []
+    String nextToken = ''
+    while( true ) { 
+      ListStacksRequest request = new ListStacksRequest()
+      .withStackStatusFilters("CREATE_IN_PROGRESS", "CREATE_FAILED",
+          "CREATE_COMPLETE", "ROLLBACK_FAILED","ROLLBACK_COMPLETE",
+          "DELETE_FAILED", "UPDATE_IN_PROGRESS",
+          "UPDATE_COMPLETE_CLEANUP_IN_PROGRESS", "UPDATE_COMPLETE",
+          "UPDATE_ROLLBACK_FAILED")
+      if( nextToken ) {
+        request.nextToken = nextToken
+      }
+      ListStacksResult result = this.cloudFormation.listStacks(request)
+      nextToken = result.nextToken
+      stackSummaries.addAll result.stackSummaries
+      if( !nextToken ) {
+        break
+      }
+    }
+    // Get the complete stack objects.
+    stackSummaries
+      .collate(3)
+      .collect {
+        // due to rate limiting
+        Thread.sleep 3000
+        it.collect{ 
+            this.cloudFormation.describeStacksAsync(
+              new DescribeStacksRequest(stackName: it.stackId))
+          }
+          .collect { it.get().stacks }
+          .flatten()
+      }
+      .flatten()
   }
   
   private String getAgeString(Stack s) {
