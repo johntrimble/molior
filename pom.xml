@@ -145,6 +145,11 @@
                 <mavenExecutorId>forked-path</mavenExecutorId>
                 <useReleaseProfile>false</useReleaseProfile>
                 <arguments>-Pmeltmedia</arguments>
+                <tagNameFormat>v@{project.version}</tagNameFormat>
+                <autoVersionSubmodules>true</autoVersionSubmodules>
+                <localCheckout>true</localCheckout>
+                <preparationGoals>clean install</preparationGoals>
+                <pushChanges>false</pushChanges>
               </configuration>
             </plugin>
           </plugins>
