@@ -10,5 +10,5 @@ git branch -d release-$1
 git checkout master
 git merge --no-ff v$1
 git push
-git push --tags v$1
+git push --tags origin v$1
 git checkout develop

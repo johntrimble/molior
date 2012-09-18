@@ -20,7 +20,8 @@
   <parent>
     <groupId>com.github.johntrimble.molior</groupId>
     <artifactId>com.github.johntrimble.molior</artifactId>
-    <version>1.0.2</version>
+    <version>1.0.3-SNAPSHOT</version>
+    <relativePath>..</relativePath>
   </parent>
 
   <groupId>com.github.johntrimble.molior</groupId>
@@ -59,8 +60,8 @@
       <artifactId>junit</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.jfrog.maven.annomojo</groupId>
-      <artifactId>maven-plugin-anno</artifactId>
+      <groupId>br.com.ingenieux.maven.annomojo</groupId>
+      <artifactId>org.jfrog.maven.maven-plugin-tools-anno</artifactId>
     </dependency>
   </dependencies>
 
