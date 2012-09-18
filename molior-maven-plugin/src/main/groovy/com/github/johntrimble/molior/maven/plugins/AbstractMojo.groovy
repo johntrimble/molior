@@ -107,6 +107,9 @@ abstract class AbstractMojo extends GroovyMojo {
     'us-west-1': [
       'cloudformation': 'cloudformation.us-west-1.amazonaws.com',
       'ec2': 'ec2.us-west-1.amazonaws.com'],
+    'us-west-2': [
+      'cloudformation': 'cloudformation.us-west-2.amazonaws.com',
+      'ec2': 'ec2.us-west-2.amazonaws.com'],
     'us-east-1': [
       'cloudformation': 'cloudformation.us-east-1.amazonaws.com',
       'ec2': 'ec2.us-east-1.amazonaws.com']]
