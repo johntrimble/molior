@@ -21,6 +21,7 @@
     <groupId>com.github.johntrimble.molior</groupId>
     <artifactId>com.github.johntrimble.molior</artifactId>
     <version>1.0.3-SNAPSHOT</version>
+    <relativePath>..</relativePath>
   </parent>
 
   <groupId>com.github.johntrimble.molior</groupId>
