@@ -15,14 +15,18 @@
 */
 package com.github.johntrimble.molior.maven.plugins.test
 
+import java.util.concurrent.Future
 import org.codehaus.plexus.components.interactivity.Prompter;
 import org.junit.Assert;
 import org.junit.Test;
 
 import com.amazonaws.services.cloudformation.AmazonCloudFormation;
+import com.amazonaws.services.cloudformation.AmazonCloudFormationAsync
 import com.amazonaws.services.cloudformation.model.DescribeStacksResult;
+import com.amazonaws.services.cloudformation.model.ListStacksResult;
 import com.amazonaws.services.cloudformation.model.Output;
 import com.amazonaws.services.cloudformation.model.Stack;
+import com.amazonaws.services.cloudformation.model.StackSummary;
 import com.github.johntrimble.molior.maven.plugins.DeleteStackMojo;
 
 class DeleteStackTest {
@@ -55,9 +59,11 @@ class DeleteStackTest {
     
     List stacks = [stack1, stack2]
     
-    AmazonCloudFormation mockClient = [
+    AmazonCloudFormationAsync mockClient = [
       'describeStacks': { new DescribeStacksResult(stacks: stacks) },
-      'deleteStack': { def deleteStackRequest -> stacks = stacks.grep({ !(deleteStackRequest.stackName in [it.stackId, it.stackName]) }) } ] as AmazonCloudFormation
+	  'describeStacksAsync': { def r -> [get: { new DescribeStacksResult(stacks: stacks.findAll({ r.stackName == it.stackId })) }] as Future },
+	  'listStacks': { new ListStacksResult().withStackSummaries(new StackSummary().withStackId(stack1.stackId), new StackSummary().withStackId(stack2.stackId)) },
+      'deleteStack': { def deleteStackRequest -> stacks = stacks.grep({ !(deleteStackRequest.stackName in [it.stackId, it.stackName]) }) } ] as AmazonCloudFormationAsync
     
     boolean prompterWasCalled = false
     Prompter mockPrompter = [prompt: { s, l, d -> prompterWasCalled = true; "Y"}] as Prompter 
