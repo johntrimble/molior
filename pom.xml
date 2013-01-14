@@ -25,7 +25,7 @@
 
   <groupId>com.github.johntrimble.molior</groupId>
   <artifactId>com.github.johntrimble.molior</artifactId>
-  <version>1.0.4-SNAPSHOT</version>
+  <version>1.0.4</version>
 
   <packaging>pom</packaging>
 
@@ -290,7 +290,7 @@
                    </goals>
                  </pluginExecutionFilter>
                  <action>
-                   <ignore></ignore>
+                   <ignore />
                  </action>
                </pluginExecution>
              </pluginExecutions>
