@@ -80,6 +80,13 @@ class CreateStackMojo extends AbstractMojo {
   @MojoParameter(defaultValue='30')
   public int cloudFormationTimeout
   
+  /**
+   * The list of capabilities for the stack. You should include CAPABILITY_IAM if 
+   * you're creating any IAM resources in this stack.
+   */
+  @MojoParameter
+  public List capabilities
+  
   void execute() throws MojoExecutionException, MojoFailureException {
     if( !stackName ) 
       stackName = "${stackNamePrefix}${new Date().format('yyyyMMddHHmmss')}"
@@ -92,9 +99,20 @@ class CreateStackMojo extends AbstractMojo {
     // Create stack parameters    
     List cfParameters = []
     this.parameters.collect cfParameters, { key, value -> new Parameter(parameterKey:key, parameterValue: value) }
-
+    
+    // Get capabilities
+    List capabilities = this.capabilities ?: []
+    
+    // Build stack request
+    def stackRequest = new CreateStackRequest(
+      stackName:stackName, 
+      templateBody:template.text, 
+      timeoutInMinutes: cloudFormationTimeout, 
+      parameters: cfParameters,
+      capabilities: capabilities)
+    
     // Create stack
-    String stackId = cloudFormation.createStack(new CreateStackRequest(stackName:stackName, templateBody:template.text, timeoutInMinutes: cloudFormationTimeout, parameters: cfParameters)).stackId
+    String stackId = cloudFormation.createStack(stackRequest).stackId
     log.info "Creating stack: ${stackId}"
     
     // Poll stack until created

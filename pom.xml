@@ -73,7 +73,7 @@
       <dependency>
         <groupId>com.amazonaws</groupId>
         <artifactId>aws-java-sdk</artifactId>
-        <version>1.3.27</version>
+        <version>1.6.6</version>
       </dependency>
 
       <!-- Pin down versions for aws-java-sdk dependencies -->
