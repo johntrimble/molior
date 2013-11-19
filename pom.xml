@@ -26,7 +26,6 @@
   <groupId>com.github.johntrimble.molior</groupId>
   <artifactId>com.github.johntrimble.molior</artifactId>
   <version>1.0.5-SNAPSHOT</version>
-
   <packaging>pom</packaging>
 
   <name>Molior</name>
