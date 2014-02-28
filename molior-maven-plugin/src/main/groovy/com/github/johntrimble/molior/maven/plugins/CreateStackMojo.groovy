@@ -35,6 +35,7 @@ import com.amazonaws.services.cloudformation.model.CreateStackRequest
 import com.amazonaws.services.cloudformation.model.DescribeStacksRequest
 import com.amazonaws.services.cloudformation.model.Parameter
 import com.amazonaws.services.cloudformation.model.StackStatus
+import com.amazonaws.services.cloudformation.model.Tag
 
 import groovy.json.JsonSlurper
 
@@ -61,6 +62,12 @@ class CreateStackMojo extends AbstractMojo {
    */
   @MojoParameter
   public Map parameters
+
+  /**
+   * Tags to associate with the created stack.
+   */
+  @MojoParameter
+  public Map tags
   
   /**
    * The CloudFormation template file.
@@ -99,7 +106,11 @@ class CreateStackMojo extends AbstractMojo {
     // Create stack parameters    
     List cfParameters = []
     this.parameters.collect cfParameters, { key, value -> new Parameter(parameterKey:key, parameterValue: value) }
-    
+
+    // Create stack tags    
+    List stackTags = []
+    this.tags.collect stackTags, { key, value -> new Tag(key: key, value: value) }
+
     // Get capabilities
     List capabilities = this.capabilities ?: []
     
@@ -109,7 +120,8 @@ class CreateStackMojo extends AbstractMojo {
       templateBody:template.text, 
       timeoutInMinutes: cloudFormationTimeout, 
       parameters: cfParameters,
-      capabilities: capabilities)
+      capabilities: capabilities,
+      tags: stackTags)
     
     // Create stack
     String stackId = cloudFormation.createStack(stackRequest).stackId
